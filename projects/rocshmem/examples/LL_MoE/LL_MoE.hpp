@@ -83,7 +83,7 @@ class LLMoE {
     comm_init();
 
     // print rank and gpu id
-    std::cout << "Rank " << rank << " using GPU " << device_id << std::endl;
+    std::cout << "Rank " << rank << "/" << num_ranks << " using GPU " << device_id << std::endl;
 
     // Create HIP stream
     CHECK_HIP(hipStreamCreate(&stream));

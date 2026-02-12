@@ -49,6 +49,7 @@ void print_usage(const char* prog_name)
         << "  -k <num_topk>      Top-k value (default: 8)\n"
         << "  -e <num_experts>   Number of experts (default: 288)\n"
         << "  -i <iterations>    Number of iterations (default: 1)\n"
+        << "  -q                 Quiet: only show summary after all iterations (default: false)\n"
         << "  -m <r|d>           Buffer Init mode:\n"
         << "                     r = random (default)\n"
         << "                     d = deterministic\n";
@@ -64,6 +65,7 @@ int main (int argc, char **argv)
   int num_topk    = 8;
   int num_experts = 288;
 
+  int quiet = false;
   int num_iterations = 10;
 
   InitMode init_mode = InitMode::Random;
@@ -90,6 +92,8 @@ int main (int argc, char **argv)
       case 'u':
         print_usage(argv[0]);
         return EXIT_SUCCESS;
+      case 'q':
+       quiet = true;
       case 'm':
         if (optarg[0] == 'r' && optarg[1] == '\0') {
           init_mode = InitMode::Random;
@@ -120,13 +124,14 @@ int main (int argc, char **argv)
   rank = ll_moe.get_rank();
   num_ranks = ll_moe.get_num_ranks();
 
-  std::cout << "rank: " << rank << ", n_RANKs: " << num_ranks << std::endl;
-
   // Run dispatch and combine multiple times
   for (int iter = 0; iter < num_iterations; iter++) {
-      ll_moe.ll_dispatch();
-      ll_moe.ll_combine();
+    if (0 == rank && !quiet) std::cout << "\rIteration " << iter+1 << " started Dispatch" << std::flush;
+    ll_moe.ll_dispatch();
+    if (0 == rank && !quiet) std::cout << "\rIteration " << iter+1 << " started Combine " << std::flush;
+    ll_moe.ll_combine();
   }
+  std::cout << std::endl;
 
   // Print all the iterations were successful
   if (rank == 0) {
@@ -135,5 +140,4 @@ int main (int argc, char **argv)
   }
 
   return 0;
-
 }
