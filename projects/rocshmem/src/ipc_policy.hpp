@@ -86,76 +86,69 @@ class IpcOnImpl {
 
   template <typename T>
   __device__ void ipcAMOAdd(T *val, T value) {
-    __hip_atomic_fetch_add(val, value, __ATOMIC_SEQ_CST,
+    __hip_atomic_fetch_add(val, value, __ATOMIC_RELAXED,
                            __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ T ipcAMOFetchAdd(T *val, T value) {
-    return __hip_atomic_fetch_add(val, value, __ATOMIC_SEQ_CST,
+    return __hip_atomic_fetch_add(val, value, __ATOMIC_RELAXED,
                                   __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ void ipcAMOCas(T *val, T cond, T value) {
-    __hip_atomic_compare_exchange_strong(val, &cond, value, __ATOMIC_SEQ_CST,
-                                         __ATOMIC_SEQ_CST,
+    __hip_atomic_compare_exchange_strong(val, &cond, value, __ATOMIC_RELAXED,
+                                         __ATOMIC_RELAXED,
                                          __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ T ipcAMOFetchCas(T *val, T cond, T value) {
-    __hip_atomic_compare_exchange_strong(val, &cond, value, __ATOMIC_SEQ_CST,
-                                         __ATOMIC_SEQ_CST,
+    __hip_atomic_compare_exchange_strong(val, &cond, value, __ATOMIC_RELAXED,
+                                         __ATOMIC_RELAXED,
                                          __HIP_MEMORY_SCOPE_SYSTEM);
     return cond;
   }
 
   template <typename T>
   __device__ void ipcAMOSet(T *val, T value) {
-    __hip_atomic_store(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    __hip_atomic_store(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ T ipcAMOSwap(T *val, T value) {
-    return __hip_atomic_exchange(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    return __hip_atomic_exchange(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ void ipcAMOAnd(T *val, T value) {
-    __hip_atomic_fetch_and(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    __hip_atomic_fetch_and(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ T ipcAMOFetchAnd(T *val, T value) {
-    return __hip_atomic_fetch_and(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    return __hip_atomic_fetch_and(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ void ipcAMOOr(T *val, T value) {
-    __hip_atomic_fetch_or(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    __hip_atomic_fetch_or(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ T ipcAMOFetchOr(T *val, T value) {
-    return __hip_atomic_fetch_or(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    return __hip_atomic_fetch_or(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ void ipcAMOXor(T *val, T value) {
-    __hip_atomic_fetch_xor(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    __hip_atomic_fetch_xor(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
   template <typename T>
   __device__ T ipcAMOFetchXor(T *val, T value) {
-    return __hip_atomic_fetch_xor(val, value, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
-  }
-
-  __device__ void zero_byte_read(int pe) {
-    int local_pe = pe % shm_size;
-    uint32_t *pe_ipc_base = reinterpret_cast<uint32_t *>(ipc_bases[local_pe]);
-    volatile uint32_t read_value = __hip_atomic_load(
-        pe_ipc_base, __ATOMIC_SEQ_CST, __HIP_MEMORY_SCOPE_SYSTEM);
+    return __hip_atomic_fetch_xor(val, value, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 };
 
@@ -212,8 +205,6 @@ class IpcOffImpl {
 
   template <typename T>
   __device__ void ipcAMOCas(T *val, T cond, T value) {}
-
-  __device__ void zero_byte_read(int pe) {}
 };
 )
 // clang-format on
